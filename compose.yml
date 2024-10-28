@@ -16,6 +16,7 @@ services:
       - ./data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: mydatabase
   
   redis:
     image: redis
