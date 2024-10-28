@@ -1,0 +1,41 @@
+name: Deploy to Self-Hosted Runner
+
+on:
+  workflow_run:
+    workflows: ["continuous integration pipeline"]
+    branches: [main]
+    types: 
+      - completed
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: SSH and Deploy Docker Container
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        REDIS_HOST: ${{ secrets.REDIS_HOST }}
+        SSH_KEY: ${{ secrets.SSH_KEY }}
+      run: |
+        # Set up SSH key
+        echo "$SSH_KEY" > keypair.pem
+        chmod 600 keypair.pem
+        
+        # SSH and run commands on remote server
+        ssh -i keypair.pem -o StrictHostKeyChecking=no root@10.0.2.182 << 'EOF'
+          docker pull haldekhiel/capstone-project-1:latest
+          docker stop my_app_container || true  
+          docker rm my_app_container || true  
+          docker run --name my_app_container \
+                     -e DB_HOST="$DB_HOST" \
+                     -e DB_USER="$DB_USER" \
+                     -e DB_PASSWORD="$DB_PASSWORD" \
+                     -e DB_NAME="$DB_NAME" \
+                     -e REDIS_HOST="$REDIS_HOST" \
+                     -v ./data:/var/lib/mysql \
+                     -p 5000:5000 -d haldekhiel/capstone-project-1:latest
+         EOF
