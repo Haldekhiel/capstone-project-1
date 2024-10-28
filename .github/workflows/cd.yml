@@ -38,4 +38,4 @@ jobs:
                      -e REDIS_HOST="$REDIS_HOST" \
                      -v ./data:/var/lib/mysql \
                      -p 5000:5000 -d haldekhiel/capstone-project-1:latest
-         EOF
+EOF
