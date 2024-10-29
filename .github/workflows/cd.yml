@@ -30,7 +30,7 @@ jobs:
         # Set up SSH key
         echo "$SSH_KEY" > keypair.pem
         chmod 600 keypair.pem
-        
+        TARGET_IP=${{ secrets[matrix.server.ip] }}
         # SSH and run commands on remote server
         ssh -i keypair.pem -o StrictHostKeyChecking=no "$SSH_USER@{{ matrix.server.ip }}"  "
           docker pull haldekhiel/capstone-project-1:latest &&
