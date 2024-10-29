@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy_http1:
-    name: deploy to ${{ matrix.server }}
+    name: deploy to ${{ matrix.ip }}
     runs-on: self-hosted
     strategy:
       matrix:
@@ -26,12 +26,13 @@ jobs:
         REDIS_HOST: ${{ secrets.REDIS_HOST }}
         SSH_KEY: ${{ secrets.SSH_KEY }}
         SSH_USER: ${{ secrets.SSH_USER }}
+        HTTP_HOST: ${{ matrix.ip }}
       run: |
         # Set up SSH key
         echo "$SSH_KEY" > keypair.pem
         chmod 600 keypair.pem
         # SSH and run commands on remote server
-        ssh -i keypair.pem -o StrictHostKeyChecking=no "$SSH_USER@{{ matrix.server.ip }}"  "
+        ssh -i keypair.pem -o StrictHostKeyChecking=no "$SSH_USER@$HTTP_HOST"  "
           docker pull haldekhiel/capstone-project-1:latest &&
           docker stop my_app_container || true  &&
           docker rm my_app_container || true  &&
