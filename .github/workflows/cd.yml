@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy_http1:
-    name: deploy to ${{ matrix.ip }}
+    name: deploy to ${{ matrix.servers }}
     runs-on: self-hosted
     strategy:
       matrix:
