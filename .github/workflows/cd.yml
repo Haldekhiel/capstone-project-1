@@ -9,9 +9,13 @@ on:
 
 jobs:
   deploy_http1:
-    name: Deploy (10.0.2.182)
+    name: deploy to ${{ matrix.server }}
     runs-on: self-hosted
-
+    strategy:
+      matrix:
+        deploy: 
+          - { name: 'HTTP1', ip: '${{ secrets.HTTP1_IP }}' }
+          - { name: 'HTTP2', ip: '${{ secrets.HTTP2_IP }}' }
     steps:
     - name: SSH and Deploy Docker Container
       env:
@@ -21,7 +25,6 @@ jobs:
         DB_NAME: ${{ secrets.DB_NAME }}
         REDIS_HOST: ${{ secrets.REDIS_HOST }}
         SSH_KEY: ${{ secrets.SSH_KEY }}
-        HTTP1_IP: ${{ secrets.HTTP1_IP }}
         SSH_USER: ${{ secrets.SSH_USER }}
       run: |
         # Set up SSH key
@@ -29,40 +32,7 @@ jobs:
         chmod 600 keypair.pem
         
         # SSH and run commands on remote server
-        ssh -i keypair.pem -o StrictHostKeyChecking=no "$SSH_USER@$HTTP1_IP"  "
-          docker pull haldekhiel/capstone-project-1:latest &&
-          docker stop my_app_container || true  &&
-          docker rm my_app_container || true  &&
-          docker run --name my_app_container \
-                     -e DB_HOST="$DB_HOST" \
-                     -e DB_USER="$DB_USER" \
-                     -e DB_PASSWORD="$DB_PASSWORD" \
-                     -e DB_NAME="$DB_NAME" \
-                     -e REDIS_HOST="$REDIS_HOST" \
-                     -v ./data:/var/lib/mysql \
-                     -p 5000:5000 -d haldekhiel/capstone-project-1:latest"
-  deploy_http2:
-    runs-on: self-hosted
-    name: Deploy (10.0.2.181)
-    
-    steps:
-    - name: SSH and Deploy Docker Container
-      env:
-        DB_HOST: ${{ secrets.DB_HOST }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_NAME: ${{ secrets.DB_NAME }}
-        REDIS_HOST: ${{ secrets.REDIS_HOST }}
-        SSH_KEY: ${{ secrets.SSH_KEY }}
-        HTTP2_IP: ${{ secrets.HTTP2_IP }}
-        SSH_USER: ${{ secrets.SSH_USER }}
-      run: |
-        # Set up SSH key
-        echo "$SSH_KEY" > keypair.pem
-        chmod 600 keypair.pem
-        
-        # SSH and run commands on remote server
-        ssh -i keypair.pem -o StrictHostKeyChecking=no "$SSH_USER@$HTTP2_IP" "
+        ssh -i keypair.pem -o StrictHostKeyChecking=no "$SSH_USER@{{ matrix.server.ip }}"  "
           docker pull haldekhiel/capstone-project-1:latest &&
           docker stop my_app_container || true  &&
           docker rm my_app_container || true  &&
