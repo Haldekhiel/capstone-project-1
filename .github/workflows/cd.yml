@@ -14,8 +14,8 @@ jobs:
     strategy:
       matrix:
         deploy: 
-          - { name: 'HTTP1', ip: '${{ secrets.HTTP1_IP }}' }
-          - { name: 'HTTP2', ip: '${{ secrets.HTTP2_IP }}' }
+          - { name: 'HTTP1', ip: "10.0.2.217" }
+          - { name: 'HTTP2', ip: "10.0.2.216" }
     steps:
     - name: SSH and Deploy Docker Container
       env:
@@ -30,7 +30,6 @@ jobs:
         # Set up SSH key
         echo "$SSH_KEY" > keypair.pem
         chmod 600 keypair.pem
-        TARGET_IP=${{ secrets[matrix.server.ip] }}
         # SSH and run commands on remote server
         ssh -i keypair.pem -o StrictHostKeyChecking=no "$SSH_USER@{{ matrix.server.ip }}"  "
           docker pull haldekhiel/capstone-project-1:latest &&
