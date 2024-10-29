@@ -8,7 +8,7 @@ on:
       - completed
 
 jobs:
-  deploy_http1:
+  deploy:
     name: deploy to ${{ matrix.servers }}
     runs-on: self-hosted
     strategy:
